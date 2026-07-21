@@ -69,16 +69,18 @@ function findCategory(categoryId) {
 
 function createCategory(name) {
   const trimmed = name.trim();
-  if (!trimmed) return;
+  if (!trimmed) return null;
   const exists = state.categories.some((c) => c.name.toLowerCase() === trimmed.toLowerCase());
   if (exists) {
     alert("Bu isimde bir kategori zaten var.");
-    return;
+    return null;
   }
-  state.categories.push({ id: generateId(), name: trimmed, items: [] });
+  const category = { id: generateId(), name: trimmed, items: [] };
+  state.categories.push(category);
   saveData();
   renderCategorySelect();
   renderCategories();
+  return category;
 }
 
 function deleteCategory(categoryId) {
@@ -440,11 +442,26 @@ searchForm.addEventListener("submit", (e) => {
 
 const newCategoryForm = document.getElementById("new-category-form");
 const newCategoryInput = document.getElementById("new-category-input");
+const toggleNewCategoryBtn = document.getElementById("toggle-new-category-btn");
+
+toggleNewCategoryBtn.addEventListener("click", () => {
+  const willShow = newCategoryForm.hidden;
+  newCategoryForm.hidden = !willShow;
+  if (willShow) {
+    newCategoryInput.focus();
+  } else {
+    newCategoryInput.value = "";
+  }
+});
 
 newCategoryForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  createCategory(newCategoryInput.value);
+  const category = createCategory(newCategoryInput.value);
   newCategoryInput.value = "";
+  if (category) {
+    categorySelect.value = category.id;
+    newCategoryForm.hidden = true;
+  }
 });
 
 // ---- Ekran yönetimi ----
@@ -508,6 +525,8 @@ function resetSearchUI() {
   searchResults.innerHTML = "";
   searchStatus.textContent = "";
   clearPendingRankTarget();
+  newCategoryForm.hidden = true;
+  newCategoryInput.value = "";
 }
 
 function logout() {

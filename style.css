@@ -51,8 +51,7 @@ body {
   gap: 28px;
 }
 
-.search-section,
-.new-category-section {
+.search-section {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -123,6 +122,10 @@ body {
 .add-target label {
   font-size: 0.9rem;
   color: #8a7690;
+}
+
+.new-category-form {
+  margin-top: 10px;
 }
 
 #category-select {

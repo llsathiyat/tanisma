@@ -32,14 +32,6 @@
     <button type="button" id="switch-user-btn" class="link-btn">Kullanıcı değiştir</button>
   </div>
 
-  <section class="new-category-section">
-    <h2 class="section-title">Yeni Kategori Ekle</h2>
-    <form id="new-category-form" class="new-category-form">
-      <input type="text" id="new-category-input" placeholder="Yeni kategori adı (örn: Anılar)" autocomplete="off" required>
-      <button type="submit">Kategori Ekle</button>
-    </form>
-  </section>
-
   <div id="rank-target-banner" class="rank-target-banner" hidden>
     <span id="rank-target-text"></span>
     <button type="button" id="rank-target-cancel" class="link-btn">İptal</button>
@@ -54,7 +46,13 @@
     <div class="add-target">
       <label for="category-select">Eklenecek kategori:</label>
       <select id="category-select"></select>
+      <button type="button" id="toggle-new-category-btn" class="link-btn">+ Yeni Kategori</button>
     </div>
+
+    <form id="new-category-form" class="new-category-form" hidden>
+      <input type="text" id="new-category-input" placeholder="Yeni kategori adı" autocomplete="off" required>
+      <button type="submit">Ekle</button>
+    </form>
 
     <div id="search-status" class="status-text"></div>
     <div id="search-results" class="card-grid"></div>
