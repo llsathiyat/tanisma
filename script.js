@@ -515,6 +515,8 @@ function logout() {
   currentUser = null;
   categoriesRef = null;
   state.categories = [];
+  renderCategorySelect();
+  renderCategories();
   localStorage.removeItem(CURRENT_USER_KEY);
   resetSearchUI();
   showScreen("login");
