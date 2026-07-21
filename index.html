@@ -13,7 +13,24 @@
   <p class="subtitle">Birlikte keşfedip sıralayalım</p>
 </header>
 
-<main class="container">
+<!-- Giriş ekranı -->
+<main id="screen-login" class="container login-screen">
+  <div class="login-card">
+    <h2 class="section-title">Kim giriş yapıyor?</h2>
+    <div class="login-buttons">
+      <button type="button" id="login-ibo" class="login-btn login-btn-ibo">İbo olarak gir</button>
+      <button type="button" id="login-zehra" class="login-btn login-btn-zehra">Zehra olarak gir</button>
+      <button type="button" id="login-observer" class="login-btn login-btn-observer">👀 Gözlemci olarak gir</button>
+    </div>
+  </div>
+</main>
+
+<!-- Kullanıcı paneli -->
+<main id="screen-dashboard" class="container" hidden>
+  <div class="dashboard-topbar">
+    <span id="current-user-label" class="current-user-label"></span>
+    <button type="button" id="switch-user-btn" class="link-btn">Kullanıcı değiştir</button>
+  </div>
 
   <section class="new-category-section">
     <h2 class="section-title">Yeni Kategori Ekle</h2>
@@ -40,6 +57,49 @@
 
   <section id="categories-container" class="categories-container"></section>
 
+  <section class="finish-section">
+    <button type="button" id="finish-btn" class="finish-btn">Tanıtma İşlemini Bitir 🎉</button>
+    <p id="finish-status" class="status-text"></p>
+  </section>
+</main>
+
+<!-- Gözlemci: kullanıcı seçimi -->
+<main id="screen-observer-select" class="container" hidden>
+  <button type="button" id="observer-back-btn" class="link-btn">← Geri</button>
+  <h2 class="section-title">Kimin favorilerini izlemek istersin?</h2>
+  <div class="observer-cards">
+    <button type="button" id="observer-pick-ibo" class="observer-card" disabled>
+      <span class="observer-card-title">İbo'nun Favorileri</span>
+      <span class="observer-card-status">Yükleniyor...</span>
+    </button>
+    <button type="button" id="observer-pick-zehra" class="observer-card" disabled>
+      <span class="observer-card-title">Zehra'nın Favorileri</span>
+      <span class="observer-card-status">Yükleniyor...</span>
+    </button>
+  </div>
+</main>
+
+<!-- Gözlemci: slayt gösterisi -->
+<main id="screen-slideshow" class="slideshow-screen" hidden>
+  <button type="button" id="slideshow-back-btn" class="link-btn slideshow-back-btn">← Geri</button>
+  <h2 id="slideshow-owner-title" class="slideshow-owner-title"></h2>
+  <h3 id="slideshow-category-title" class="slideshow-category-title"></h3>
+
+  <div class="slideshow-stage">
+    <button type="button" id="slideshow-prev" class="slideshow-arrow slideshow-arrow-left" aria-label="Önceki">←</button>
+    <div class="slideshow-slide">
+      <span id="slideshow-rank" class="slideshow-rank"></span>
+      <img id="slideshow-image" class="slideshow-image" src="" alt="">
+      <span id="slideshow-name" class="slideshow-name"></span>
+      <p id="slideshow-description" class="slideshow-description"></p>
+    </div>
+    <button type="button" id="slideshow-next" class="slideshow-arrow slideshow-arrow-right" aria-label="Sonraki">→</button>
+  </div>
+
+  <div id="slideshow-end" class="slideshow-end" hidden>
+    <p>Tüm favoriler gösterildi 🎉</p>
+    <button type="button" id="slideshow-end-back-btn" class="finish-btn">Seçim ekranına dön</button>
+  </div>
 </main>
 
 <template id="category-template">

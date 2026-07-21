@@ -1,5 +1,18 @@
 firebase.initializeApp(firebaseConfig);
-const dataRef = firebase.database().ref("tanismaData");
+const db = firebase.database();
+
+const USERS = ["ibo", "zehra"];
+const USER_LABELS = { ibo: "İbo", zehra: "Zehra" };
+const OWNER_TITLES = { ibo: "İbo'nun Favorileri", zehra: "Zehra'nın Favorileri" };
+const CURRENT_USER_KEY = "tanismaCurrentUser";
+
+function userCategoriesRef(user) {
+  return db.ref("users/" + user + "/categories");
+}
+
+function userCompletedRef(user) {
+  return db.ref("users/" + user + "/completed");
+}
 
 const DEFAULT_CATEGORIES = [
   "Çizgi Film",
@@ -28,6 +41,9 @@ const state = {
   categories: [],
 };
 
+let currentUser = null;
+let categoriesRef = null;
+
 function generateId() {
   if (window.crypto && window.crypto.randomUUID) {
     return window.crypto.randomUUID();
@@ -36,7 +52,8 @@ function generateId() {
 }
 
 function saveData() {
-  dataRef.set({ categories: state.categories });
+  if (!categoriesRef) return;
+  categoriesRef.set(state.categories);
 }
 
 function initializeCategories() {
@@ -121,6 +138,14 @@ function rankLabel(index) {
 function truncateText(text, maxLength) {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trim() + "...";
+}
+
+function normalizeCategories(rawValue) {
+  const rawCategories = Array.isArray(rawValue) ? rawValue : [];
+  return rawCategories.map((category) => ({
+    ...category,
+    items: Array.isArray(category.items) ? category.items : [],
+  }));
 }
 
 const categorySelect = document.getElementById("category-select");
@@ -365,19 +390,229 @@ newCategoryForm.addEventListener("submit", (e) => {
   newCategoryInput.value = "";
 });
 
-searchStatus.textContent = "Ortak liste yükleniyor...";
+// ---- Ekran yönetimi ----
 
-dataRef.on("value", (snapshot) => {
-  const data = snapshot.val();
-  const rawCategories = data && Array.isArray(data.categories) ? data.categories : [];
-  state.categories = rawCategories.map((category) => ({
-    ...category,
-    items: Array.isArray(category.items) ? category.items : [],
-  }));
-  initializeCategories();
-  if (searchStatus.textContent === "Ortak liste yükleniyor...") {
-    searchStatus.textContent = "";
+const screens = {
+  login: document.getElementById("screen-login"),
+  dashboard: document.getElementById("screen-dashboard"),
+  observerSelect: document.getElementById("screen-observer-select"),
+  slideshow: document.getElementById("screen-slideshow"),
+};
+
+function showScreen(name) {
+  Object.keys(screens).forEach((key) => {
+    screens[key].hidden = key !== name;
+  });
+}
+
+// ---- Giriş / kullanıcı paneli ----
+
+const currentUserLabel = document.getElementById("current-user-label");
+const switchUserBtn = document.getElementById("switch-user-btn");
+const finishBtn = document.getElementById("finish-btn");
+const finishStatus = document.getElementById("finish-status");
+
+let dashboardListenerRef = null;
+
+function attachDashboardListener(user) {
+  categoriesRef = userCategoriesRef(user);
+  searchStatus.textContent = "Liste yükleniyor...";
+  dashboardListenerRef = categoriesRef;
+  categoriesRef.on("value", (snapshot) => {
+    state.categories = normalizeCategories(snapshot.val());
+    initializeCategories();
+    if (searchStatus.textContent === "Liste yükleniyor...") {
+      searchStatus.textContent = "";
+    }
+    renderCategorySelect();
+    renderCategories();
+  });
+}
+
+function detachDashboardListener() {
+  if (dashboardListenerRef) {
+    dashboardListenerRef.off();
+    dashboardListenerRef = null;
   }
-  renderCategorySelect();
-  renderCategories();
+}
+
+function loginAs(user) {
+  currentUser = user;
+  localStorage.setItem(CURRENT_USER_KEY, user);
+  currentUserLabel.textContent = USER_LABELS[user] + " olarak giriş yaptın";
+  finishStatus.textContent = "";
+  attachDashboardListener(user);
+  showScreen("dashboard");
+}
+
+function logout() {
+  detachDashboardListener();
+  currentUser = null;
+  categoriesRef = null;
+  state.categories = [];
+  localStorage.removeItem(CURRENT_USER_KEY);
+  showScreen("login");
+}
+
+document.getElementById("login-ibo").addEventListener("click", () => loginAs("ibo"));
+document.getElementById("login-zehra").addEventListener("click", () => loginAs("zehra"));
+document.getElementById("login-observer").addEventListener("click", () => {
+  showScreen("observerSelect");
+  enterObserverSelect();
 });
+switchUserBtn.addEventListener("click", logout);
+
+finishBtn.addEventListener("click", () => {
+  if (!currentUser) return;
+  const confirmed = confirm(
+    "Tanıtma işlemini bitirmek istediğine emin misin? Bu, listeni gözlemci modunda görünür yapacak."
+  );
+  if (!confirmed) return;
+  userCompletedRef(currentUser).set(true);
+  finishStatus.textContent = "Tanıtma işlemin tamamlandı olarak işaretlendi. 🎉";
+});
+
+// ---- Gözlemci: kullanıcı seçimi ----
+
+const observerCards = {
+  ibo: document.getElementById("observer-pick-ibo"),
+  zehra: document.getElementById("observer-pick-zehra"),
+};
+const observerBackBtn = document.getElementById("observer-back-btn");
+
+let observerListeners = [];
+
+function enterObserverSelect() {
+  USERS.forEach((user) => {
+    const card = observerCards[user];
+    const statusEl = card.querySelector(".observer-card-status");
+    card.disabled = true;
+    statusEl.textContent = "Yükleniyor...";
+    const ref = userCompletedRef(user);
+    const handler = (snapshot) => {
+      const completed = snapshot.val() === true;
+      card.disabled = !completed;
+      statusEl.textContent = completed ? "Hazır ✓" : "Henüz tamamlanmadı";
+      card.classList.toggle("observer-card-ready", completed);
+    };
+    ref.on("value", handler);
+    observerListeners.push({ ref, handler });
+  });
+}
+
+function detachObserverListeners() {
+  observerListeners.forEach(({ ref, handler }) => ref.off("value", handler));
+  observerListeners = [];
+}
+
+observerBackBtn.addEventListener("click", () => {
+  detachObserverListeners();
+  showScreen("login");
+});
+
+observerCards.ibo.addEventListener("click", () => startSlideshowFor("ibo"));
+observerCards.zehra.addEventListener("click", () => startSlideshowFor("zehra"));
+
+// ---- Gözlemci: slayt gösterisi ----
+
+const slideshowOwnerTitle = document.getElementById("slideshow-owner-title");
+const slideshowCategoryTitle = document.getElementById("slideshow-category-title");
+const slideshowStage = document.querySelector(".slideshow-stage");
+const slideshowEnd = document.getElementById("slideshow-end");
+const slideshowEndMessage = slideshowEnd.querySelector("p");
+const slideshowRank = document.getElementById("slideshow-rank");
+const slideshowImage = document.getElementById("slideshow-image");
+const slideshowName = document.getElementById("slideshow-name");
+const slideshowDescription = document.getElementById("slideshow-description");
+const slideshowBackBtn = document.getElementById("slideshow-back-btn");
+const slideshowEndBackBtn = document.getElementById("slideshow-end-back-btn");
+
+let slideshowCategories = [];
+let slideCategoryIndex = 0;
+let slideItemIndex = 0;
+
+function startSlideshowFor(user) {
+  userCategoriesRef(user).once("value", (snapshot) => {
+    const rawCategories = normalizeCategories(snapshot.val());
+    slideshowCategories = rawCategories
+      .map((c) => ({ name: c.name, items: c.items }))
+      .filter((c) => c.items.length > 0);
+
+    slideshowOwnerTitle.textContent = OWNER_TITLES[user];
+
+    if (slideshowCategories.length === 0) {
+      slideshowCategoryTitle.textContent = "";
+      slideshowStage.hidden = true;
+      slideshowEnd.hidden = false;
+      slideshowEndMessage.textContent = "Henüz hiç favori eklenmemiş.";
+      showScreen("slideshow");
+      return;
+    }
+
+    slideCategoryIndex = 0;
+    slideItemIndex = 0;
+    slideshowEnd.hidden = true;
+    slideshowStage.hidden = false;
+    renderSlide();
+    showScreen("slideshow");
+  });
+}
+
+function renderSlide() {
+  const category = slideshowCategories[slideCategoryIndex];
+  const item = category.items[slideItemIndex];
+  slideshowCategoryTitle.textContent = category.name;
+  slideshowRank.textContent = rankLabel(slideItemIndex);
+  slideshowImage.src = item.imageUrl;
+  slideshowImage.alt = item.term;
+  slideshowName.textContent = item.term;
+  const description = item.description || "";
+  slideshowDescription.textContent = description;
+  slideshowDescription.hidden = !description;
+}
+
+function goToNextSlide() {
+  const category = slideshowCategories[slideCategoryIndex];
+  if (slideItemIndex < category.items.length - 1) {
+    slideItemIndex++;
+  } else if (slideCategoryIndex < slideshowCategories.length - 1) {
+    slideCategoryIndex++;
+    slideItemIndex = 0;
+  } else {
+    slideshowStage.hidden = true;
+    slideshowEnd.hidden = false;
+    slideshowEndMessage.textContent = "Tüm favoriler gösterildi 🎉";
+    return;
+  }
+  renderSlide();
+}
+
+function goToPrevSlide() {
+  if (slideItemIndex > 0) {
+    slideItemIndex--;
+  } else if (slideCategoryIndex > 0) {
+    slideCategoryIndex--;
+    slideItemIndex = slideshowCategories[slideCategoryIndex].items.length - 1;
+  } else {
+    return;
+  }
+  renderSlide();
+}
+
+document.getElementById("slideshow-next").addEventListener("click", goToNextSlide);
+document.getElementById("slideshow-prev").addEventListener("click", goToPrevSlide);
+slideshowBackBtn.addEventListener("click", () => {
+  showScreen("observerSelect");
+});
+slideshowEndBackBtn.addEventListener("click", () => {
+  showScreen("observerSelect");
+});
+
+// ---- Başlangıç ----
+
+const savedUser = localStorage.getItem(CURRENT_USER_KEY);
+if (savedUser && USERS.includes(savedUser)) {
+  loginAs(savedUser);
+} else {
+  showScreen("login");
+}
