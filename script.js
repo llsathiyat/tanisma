@@ -41,6 +41,18 @@ const state = {
   categories: [],
 };
 
+const IMAGE_PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+  <rect width="100" height="100" rx="12" fill="#e2e8f0"/>
+  <text x="50%" y="54%" font-size="38" text-anchor="middle" dominant-baseline="middle">🖼️</text>
+</svg>`;
+const IMAGE_PLACEHOLDER = "data:image/svg+xml," + encodeURIComponent(IMAGE_PLACEHOLDER_SVG);
+
+function handleImageError(event) {
+  const img = event.currentTarget || event.target;
+  img.onerror = null;
+  img.src = IMAGE_PLACEHOLDER;
+}
+
 let currentUser = null;
 let categoriesRef = null;
 // Firebase'den ilk gerçek veri gelmeden saveData() çalışmasın diye —
@@ -246,6 +258,7 @@ function renderCategories() {
 
           image.src = item.imageUrl;
           image.alt = item.term;
+          image.onerror = handleImageError;
           name.textContent = item.term;
           removeBtn.addEventListener("click", () => removeItem(category.id, item.id));
 
@@ -662,6 +675,7 @@ function renderSlide() {
   slideshowRank.textContent = rankLabel(slide.rankIndex);
   slideshowImage.src = slide.item.imageUrl;
   slideshowImage.alt = slide.item.term;
+  slideshowImage.onerror = handleImageError;
   slideshowName.textContent = slide.item.term;
   const description = slide.item.description || "";
   slideshowDescription.textContent = description;
