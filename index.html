@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanışma Listemiz 💕</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>En Sevdiklerimiz 💕</h1>
+  <p class="subtitle">Birlikte keşfedip sıralayalım</p>
+</header>
+
+<main class="container">
+
+  <section class="new-category-section">
+    <h2 class="section-title">Yeni Kategori Ekle</h2>
+    <form id="new-category-form" class="new-category-form">
+      <input type="text" id="new-category-input" placeholder="Yeni kategori adı (örn: Anılar)" autocomplete="off" required>
+      <button type="submit">Kategori Ekle</button>
+    </form>
+  </section>
+
+  <section class="search-section">
+    <form id="search-form" class="search-form">
+      <input type="text" id="search-input" placeholder="Ara: gumball, pizza, lamborghini, mavi..." autocomplete="off" required>
+      <button type="submit">Ara</button>
+    </form>
+
+    <div class="add-target">
+      <label for="category-select">Eklenecek kategori:</label>
+      <select id="category-select"></select>
+    </div>
+
+    <div id="search-status" class="status-text"></div>
+    <div id="search-results" class="card-grid"></div>
+  </section>
+
+  <section id="categories-container" class="categories-container"></section>
+
+</main>
+
+<template id="category-template">
+  <div class="category-card" draggable="false">
+    <div class="category-header">
+      <h2 class="category-title"></h2>
+      <button class="delete-category-btn" title="Kategoriyi sil">Kategoriyi Sil</button>
+    </div>
+    <ul class="item-list"></ul>
+  </div>
+</template>
+
+<template id="item-template">
+  <li class="item-row" draggable="true">
+    <div class="item-main">
+      <span class="rank-badge"></span>
+      <img class="item-image" src="" alt="">
+      <span class="item-name"></span>
+      <button class="edit-note-btn" title="Not ekle/düzenle">✏️</button>
+      <button class="remove-item-btn" title="Sil">×</button>
+    </div>
+    <p class="item-note-preview" hidden></p>
+    <div class="item-note-editor" draggable="false" hidden>
+      <textarea class="item-note-textarea" rows="3" placeholder="Bu öğeyle ilgili notunu yaz..."></textarea>
+      <button type="button" class="save-note-btn">Kaydet</button>
+    </div>
+  </li>
+</template>
+
+<template id="search-card-template">
+  <div class="search-card" tabindex="0" role="button">
+    <img class="search-card-image" src="" alt="">
+    <span class="search-card-tag"></span>
+  </div>
+</template>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
