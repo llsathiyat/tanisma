@@ -7,21 +7,21 @@
 }
 
 :root {
-  --bg: #fdf3f8;
-  --pink: #ffc1d9;
-  --pink-dark: #ff8fb3;
-  --purple: #e3d6ff;
-  --purple-dark: #b79cff;
-  --text: #4a3d4f;
+  --bg: #f5f7fa;
+  --pink: #c3d3e2;
+  --pink-dark: #2f6690;
+  --purple: #d7e3ee;
+  --purple-dark: #3e4c63;
+  --text: #2e3b47;
   --card-bg: #ffffff;
-  --shadow: 0 4px 12px rgba(180, 120, 160, 0.18);
+  --shadow: 0 4px 12px rgba(30, 58, 95, 0.15);
   --radius: 18px;
 }
 
 body {
   margin: 0;
   font-family: "Segoe UI", "Trebuchet MS", sans-serif;
-  background: linear-gradient(180deg, var(--bg), #fef8fb 40%);
+  background: linear-gradient(180deg, var(--bg), #eef2f6 40%);
   color: var(--text);
   min-height: 100vh;
 }
@@ -38,7 +38,7 @@ body {
 
 .subtitle {
   margin: 4px 0 0;
-  color: #8a7690;
+  color: #5a6b7a;
   font-size: 0.95rem;
 }
 
@@ -103,7 +103,7 @@ body {
 
 .search-form button:hover,
 .new-category-form button:hover {
-  background: #ff6f9f;
+  background: #244f73;
 }
 
 .search-form button:active,
@@ -121,7 +121,7 @@ body {
 
 .add-target label {
   font-size: 0.9rem;
-  color: #8a7690;
+  color: #5a6b7a;
 }
 
 .new-category-form {
@@ -140,7 +140,7 @@ body {
 .status-text {
   margin-top: 10px;
   font-size: 0.9rem;
-  color: #8a7690;
+  color: #5a6b7a;
   min-height: 1.2em;
 }
 
@@ -151,7 +151,7 @@ body {
   gap: 12px;
   flex-wrap: wrap;
   background: var(--purple);
-  color: #5b4a86;
+  color: #26374a;
   border-radius: var(--radius);
   padding: 12px 18px;
   font-size: 0.9rem;
@@ -194,7 +194,7 @@ body {
 .search-card-tag {
   font-size: 0.75rem;
   padding: 6px 8px;
-  color: #8a7690;
+  color: #5a6b7a;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -231,7 +231,7 @@ body {
 
 .delete-category-btn {
   background: var(--purple);
-  color: #5b4a86;
+  color: #26374a;
   font-size: 0.8rem;
   padding: 8px 14px;
 }
@@ -254,8 +254,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #fff8fb;
-  border: 1px solid #ffe3ee;
+  background: #f6f9fb;
+  border: 1px solid #dce6f0;
   border-radius: 12px;
   padding: 10px 12px;
   cursor: grab;
@@ -290,7 +290,7 @@ body {
   border: none;
   border-radius: 999px;
   background: var(--purple);
-  color: #5b4a86;
+  color: #26374a;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -320,7 +320,7 @@ body {
   align-items: center;
   gap: 6px;
   background: #fff;
-  border: 1px solid #ffe3ee;
+  border: 1px solid #dce6f0;
   border-radius: 12px;
   padding: 10px;
   min-width: 110px;
@@ -353,7 +353,7 @@ body {
 .remove-item-btn {
   background: transparent;
   border: none;
-  color: #c98aa3;
+  color: #6e8ca6;
   font-size: 1.3rem;
   line-height: 1;
   cursor: pointer;
@@ -362,8 +362,8 @@ body {
 }
 
 .remove-item-btn:hover {
-  background: #ffe3ee;
-  color: #ff6f9f;
+  background: #dce6f0;
+  color: #244f73;
 }
 
 .edit-note-btn {
@@ -379,19 +379,19 @@ body {
 }
 
 .edit-note-btn:hover {
-  background: #f2e6fb;
+  background: #e1eaf3;
 }
 
 .edit-note-btn.has-note {
   opacity: 1;
-  background: #f2e6fb;
+  background: #e1eaf3;
 }
 
 .item-note-preview {
   margin: 0;
   font-size: 0.8rem;
   font-style: italic;
-  color: #8a7690;
+  color: #5a6b7a;
   cursor: pointer;
   text-align: center;
   max-width: 160px;
@@ -432,11 +432,11 @@ body {
 }
 
 .save-note-btn:hover {
-  background: #9d7ce8;
+  background: #2a3849;
 }
 
 .empty-hint {
-  color: #b3a3b8;
+  color: #8ca0b3;
   font-size: 0.9rem;
   font-style: italic;
   padding: 6px 0;
@@ -487,12 +487,12 @@ body {
 }
 
 .login-btn-ibo {
-  background: #4a90d9;
+  background: #1e3a5f;
   color: #fff;
 }
 
 .login-btn-ibo:hover {
-  background: #3b78ba;
+  background: #15293f;
 }
 
 .login-btn-zehra {
@@ -501,7 +501,7 @@ body {
 }
 
 .login-btn-zehra:hover {
-  background: #ff6f9f;
+  background: #244f73;
 }
 
 .login-btn-observer {
@@ -510,7 +510,7 @@ body {
 }
 
 .login-btn-observer:hover {
-  background: #9d7ce8;
+  background: #2a3849;
 }
 
 /* ---- Panel üst çubuğu / bitirme ---- */
@@ -532,7 +532,7 @@ body {
   background: var(--purple);
   border: none;
   border-radius: 999px;
-  color: #5b4a86;
+  color: #26374a;
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -569,7 +569,7 @@ body {
 }
 
 .finish-btn:hover {
-  background: #ff6f9f;
+  background: #244f73;
 }
 
 .finish-btn:active {
@@ -617,12 +617,12 @@ body {
 }
 
 .observer-card-ibo .observer-card-title {
-  color: #4a90d9;
+  color: #1e3a5f;
 }
 
 .observer-card-ibo.observer-card-ready {
-  border-color: #4a90d9;
-  background: #eaf3fc;
+  border-color: #1e3a5f;
+  background: #e3ecf3;
 }
 
 .observer-card-zehra .observer-card-title {
@@ -631,12 +631,12 @@ body {
 
 .observer-card-zehra.observer-card-ready {
   border-color: var(--pink-dark);
-  background: #fff0f5;
+  background: #e7f0f6;
 }
 
 .observer-card-status {
   font-size: 0.9rem;
-  color: #8a7690;
+  color: #5a6b7a;
 }
 
 .observer-card-ready .observer-card-status {
@@ -698,7 +698,7 @@ body {
 }
 
 .slideshow-arrow:hover {
-  background: #f2e6fb;
+  background: #e1eaf3;
 }
 
 .slideshow-arrow:active {
@@ -741,7 +741,7 @@ body {
   margin: 0;
   font-size: 0.95rem;
   font-style: italic;
-  color: #8a7690;
+  color: #5a6b7a;
   text-align: center;
 }
 

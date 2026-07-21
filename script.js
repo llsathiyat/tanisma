@@ -43,6 +43,10 @@ const state = {
 
 let currentUser = null;
 let categoriesRef = null;
+// Firebase'den ilk gerçek veri gelmeden saveData() çalışmasın diye —
+// aksi halde henüz yüklenmemiş boş yerel state, kullanıcının gerçek
+// verisinin üzerine yazılıp onu silebilir.
+let hasLoadedInitialSnapshot = false;
 
 function generateId() {
   if (window.crypto && window.crypto.randomUUID) {
@@ -52,7 +56,7 @@ function generateId() {
 }
 
 function saveData() {
-  if (!categoriesRef) return;
+  if (!categoriesRef || !hasLoadedInitialSnapshot) return;
   categoriesRef.set(state.categories);
 }
 
@@ -490,10 +494,12 @@ let dashboardListenerRef = null;
 
 function attachDashboardListener(user) {
   categoriesRef = userCategoriesRef(user);
+  hasLoadedInitialSnapshot = false;
   searchStatus.textContent = "Liste yükleniyor...";
   dashboardListenerRef = categoriesRef;
   categoriesRef.on("value", (snapshot) => {
     state.categories = normalizeCategories(snapshot.val());
+    hasLoadedInitialSnapshot = true;
     initializeCategories();
     if (searchStatus.textContent === "Liste yükleniyor...") {
       searchStatus.textContent = "";
@@ -533,6 +539,7 @@ function logout() {
   detachDashboardListener();
   currentUser = null;
   categoriesRef = null;
+  hasLoadedInitialSnapshot = false;
   state.categories = [];
   renderCategorySelect();
   renderCategories();
