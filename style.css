@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 :root {
   --bg: #fdf3f8;
   --pink: #ffc1d9;
@@ -137,6 +141,20 @@ body {
   min-height: 1.2em;
 }
 
+.rank-target-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--purple);
+  color: #5b4a86;
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .card-grid {
   margin-top: 14px;
   display: grid;
@@ -229,30 +247,32 @@ body {
   gap: 8px;
 }
 
-.item-row {
+.rank-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   background: #fff8fb;
   border: 1px solid #ffe3ee;
   border-radius: 12px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   cursor: grab;
 }
 
-.item-row.dragging {
+.rank-group.dragging {
   opacity: 0.4;
 }
 
-.item-row.drag-over {
+.rank-group.drag-over {
   border-color: var(--pink-dark);
   border-style: dashed;
 }
 
-.item-main {
+.rank-group-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .rank-badge {
@@ -260,23 +280,71 @@ body {
   font-size: 0.85rem;
   color: var(--pink-dark);
   white-space: nowrap;
-  min-width: 90px;
+}
+
+.add-variation-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--purple);
+  color: #5b4a86;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background 0.15s, transform 0.1s;
+}
+
+.add-variation-btn:hover {
+  background: var(--purple-dark);
+  color: #fff;
+  transform: scale(1.03);
+}
+
+.add-variation-btn:active {
+  transform: scale(0.96);
+}
+
+.variation-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.variation-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #ffe3ee;
+  border-radius: 12px;
+  padding: 10px;
+  min-width: 110px;
+  cursor: default;
 }
 
 .item-image {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
   border-radius: 8px;
   flex-shrink: 0;
 }
 
 .item-name {
-  flex: 1;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.variation-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .remove-item-btn {
@@ -318,17 +386,20 @@ body {
 
 .item-note-preview {
   margin: 0;
-  padding-left: 4px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-style: italic;
   color: #8a7690;
   cursor: pointer;
+  text-align: center;
+  max-width: 160px;
 }
 
 .item-note-editor {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 220px;
+  max-width: 70vw;
 }
 
 .item-note-textarea {
@@ -400,7 +471,12 @@ body {
   font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s, background 0.15s;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.login-btn:hover {
+  transform: scale(1.03);
 }
 
 .login-btn:active {
@@ -408,31 +484,30 @@ body {
 }
 
 .login-btn-ibo {
-  background: var(--pink-dark);
+  background: #4a90d9;
   color: #fff;
 }
 
 .login-btn-ibo:hover {
-  background: #ff6f9f;
+  background: #3b78ba;
 }
 
 .login-btn-zehra {
-  background: var(--purple-dark);
+  background: var(--pink-dark);
   color: #fff;
 }
 
 .login-btn-zehra:hover {
-  background: #9d7ce8;
+  background: #ff6f9f;
 }
 
 .login-btn-observer {
-  background: transparent;
-  color: var(--text);
-  border: 2px dashed #c9b8d1;
+  background: var(--purple-dark);
+  color: #fff;
 }
 
 .login-btn-observer:hover {
-  background: #f5eefb;
+  background: #9d7ce8;
 }
 
 /* ---- Panel üst çubuğu / bitirme ---- */
@@ -451,17 +526,26 @@ body {
 }
 
 .link-btn {
-  background: transparent;
+  background: var(--purple);
   border: none;
-  color: #8a7690;
-  text-decoration: underline;
+  border-radius: 999px;
+  color: #5b4a86;
   cursor: pointer;
-  font-size: 0.9rem;
-  padding: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  box-shadow: var(--shadow);
+  transition: background 0.15s, transform 0.15s;
 }
 
 .link-btn:hover {
-  color: var(--pink-dark);
+  background: var(--purple-dark);
+  color: #fff;
+  transform: scale(1.03);
+}
+
+.link-btn:active {
+  transform: scale(0.97);
 }
 
 .finish-section {
@@ -520,14 +604,31 @@ body {
 }
 
 .observer-card-ready:not(:disabled):hover {
-  transform: translateY(-3px);
-  border-color: var(--purple-dark);
+  transform: translateY(-3px) scale(1.02);
 }
 
 .observer-card-title {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--purple-dark);
+}
+
+.observer-card-ibo .observer-card-title {
+  color: #4a90d9;
+}
+
+.observer-card-ibo.observer-card-ready {
+  border-color: #4a90d9;
+  background: #eaf3fc;
+}
+
+.observer-card-zehra .observer-card-title {
+  color: var(--pink-dark);
+}
+
+.observer-card-zehra.observer-card-ready {
+  border-color: var(--pink-dark);
+  background: #fff0f5;
 }
 
 .observer-card-status {
@@ -656,12 +757,15 @@ body {
   }
 
   .rank-badge {
-    min-width: 70px;
     font-size: 0.75rem;
   }
 
   .item-name {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .variation-card {
+    min-width: 90px;
   }
 
   .observer-cards {

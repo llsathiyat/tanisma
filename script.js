@@ -95,7 +95,17 @@ function deleteCategory(categoryId) {
 function addItemToCategory(categoryId, item) {
   const category = findCategory(categoryId);
   if (!category) return;
-  category.items.push(item);
+  category.items.push([item]);
+  saveData();
+  renderCategories();
+}
+
+function addItemToRankGroup(categoryId, groupIndex, item) {
+  const category = findCategory(categoryId);
+  if (!category) return;
+  const group = category.items[groupIndex];
+  if (!group) return;
+  group.push(item);
   saveData();
   renderCategories();
 }
@@ -103,7 +113,9 @@ function addItemToCategory(categoryId, item) {
 function removeItem(categoryId, itemId) {
   const category = findCategory(categoryId);
   if (!category) return;
-  category.items = category.items.filter((i) => i.id !== itemId);
+  category.items = category.items
+    .map((group) => group.filter((i) => i.id !== itemId))
+    .filter((group) => group.length > 0);
   saveData();
   renderCategories();
 }
@@ -122,9 +134,13 @@ function reorderItem(categoryId, fromIndex, toIndex) {
 function setItemDescription(categoryId, itemId, description) {
   const category = findCategory(categoryId);
   if (!category) return;
-  const item = category.items.find((i) => i.id === itemId);
-  if (!item) return;
-  item.description = description;
+  for (const group of category.items) {
+    const item = group.find((i) => i.id === itemId);
+    if (item) {
+      item.description = description;
+      break;
+    }
+  }
   saveData();
   renderCategories();
 }
@@ -142,16 +158,20 @@ function truncateText(text, maxLength) {
 
 function normalizeCategories(rawValue) {
   const rawCategories = Array.isArray(rawValue) ? rawValue : [];
-  return rawCategories.map((category) => ({
-    ...category,
-    items: Array.isArray(category.items) ? category.items : [],
-  }));
+  return rawCategories.map((category) => {
+    const rawItems = Array.isArray(category.items) ? category.items : [];
+    // Eski veri formatında her rank tek bir öğeydi; burada geriye dönük
+    // uyumluluk için tek öğeleri tek elemanlı gruba sarıyoruz.
+    const groups = rawItems.map((entry) => (Array.isArray(entry) ? entry : [entry]));
+    return { ...category, items: groups };
+  });
 }
 
 const categorySelect = document.getElementById("category-select");
 const categoriesContainer = document.getElementById("categories-container");
 const categoryTemplate = document.getElementById("category-template");
-const itemTemplate = document.getElementById("item-template");
+const rankGroupTemplate = document.getElementById("rank-group-template");
+const variationTemplate = document.getElementById("variation-template");
 const searchCardTemplate = document.getElementById("search-card-template");
 
 function renderCategorySelect() {
@@ -195,56 +215,66 @@ function renderCategories() {
       hint.textContent = "Henüz içerik eklenmedi.";
       list.appendChild(hint);
     } else {
-      category.items.forEach((item, index) => {
-        const itemNode = itemTemplate.content.cloneNode(true);
-        const row = itemNode.querySelector(".item-row");
-        const badge = itemNode.querySelector(".rank-badge");
-        const image = itemNode.querySelector(".item-image");
-        const name = itemNode.querySelector(".item-name");
-        const removeBtn = itemNode.querySelector(".remove-item-btn");
-        const editBtn = itemNode.querySelector(".edit-note-btn");
-        const notePreview = itemNode.querySelector(".item-note-preview");
-        const noteEditor = itemNode.querySelector(".item-note-editor");
-        const noteTextarea = itemNode.querySelector(".item-note-textarea");
-        const saveNoteBtn = itemNode.querySelector(".save-note-btn");
+      category.items.forEach((group, groupIndex) => {
+        const groupNode = rankGroupTemplate.content.cloneNode(true);
+        const row = groupNode.querySelector(".rank-group");
+        const badge = groupNode.querySelector(".rank-badge");
+        const addVariationBtn = groupNode.querySelector(".add-variation-btn");
+        const gallery = groupNode.querySelector(".variation-gallery");
 
         row.dataset.categoryId = category.id;
-        row.dataset.index = String(index);
-        badge.textContent = rankLabel(index);
-        image.src = item.imageUrl;
-        image.alt = item.term;
-        name.textContent = item.term;
-        removeBtn.addEventListener("click", () => removeItem(category.id, item.id));
+        row.dataset.index = String(groupIndex);
+        badge.textContent = rankLabel(groupIndex);
+        addVariationBtn.addEventListener("click", () => setPendingRankTarget(category.id, groupIndex));
 
-        const description = item.description || "";
-        editBtn.classList.toggle("has-note", Boolean(description));
-        notePreview.textContent = truncateText(description, 60);
-        notePreview.hidden = !description;
-        noteEditor.hidden = true;
+        group.forEach((item) => {
+          const itemNode = variationTemplate.content.cloneNode(true);
+          const image = itemNode.querySelector(".item-image");
+          const name = itemNode.querySelector(".item-name");
+          const removeBtn = itemNode.querySelector(".remove-item-btn");
+          const editBtn = itemNode.querySelector(".edit-note-btn");
+          const notePreview = itemNode.querySelector(".item-note-preview");
+          const noteEditor = itemNode.querySelector(".item-note-editor");
+          const noteTextarea = itemNode.querySelector(".item-note-textarea");
+          const saveNoteBtn = itemNode.querySelector(".save-note-btn");
 
-        const openEditor = () => {
-          noteTextarea.value = item.description || "";
-          noteEditor.hidden = false;
-          notePreview.hidden = true;
-          noteTextarea.focus();
-        };
-        const closeEditor = () => {
-          noteEditor.hidden = true;
+          image.src = item.imageUrl;
+          image.alt = item.term;
+          name.textContent = item.term;
+          removeBtn.addEventListener("click", () => removeItem(category.id, item.id));
+
+          const description = item.description || "";
+          editBtn.classList.toggle("has-note", Boolean(description));
+          notePreview.textContent = truncateText(description, 60);
           notePreview.hidden = !description;
-        };
+          noteEditor.hidden = true;
 
-        editBtn.addEventListener("click", () => {
-          if (noteEditor.hidden) openEditor();
-          else closeEditor();
-        });
-        notePreview.addEventListener("click", openEditor);
-        saveNoteBtn.addEventListener("click", () => {
-          setItemDescription(category.id, item.id, noteTextarea.value.trim());
+          const openEditor = () => {
+            noteTextarea.value = item.description || "";
+            noteEditor.hidden = false;
+            notePreview.hidden = true;
+            noteTextarea.focus();
+          };
+          const closeEditor = () => {
+            noteEditor.hidden = true;
+            notePreview.hidden = !description;
+          };
+
+          editBtn.addEventListener("click", () => {
+            if (noteEditor.hidden) openEditor();
+            else closeEditor();
+          });
+          notePreview.addEventListener("click", openEditor);
+          saveNoteBtn.addEventListener("click", () => {
+            setItemDescription(category.id, item.id, noteTextarea.value.trim());
+          });
+
+          gallery.appendChild(itemNode);
         });
 
         attachDragEvents(row);
 
-        list.appendChild(itemNode);
+        list.appendChild(groupNode);
       });
     }
 
@@ -266,7 +296,7 @@ function attachDragEvents(row) {
 
   row.addEventListener("dragend", () => {
     row.classList.remove("dragging");
-    document.querySelectorAll(".item-row.drag-over").forEach((el) => el.classList.remove("drag-over"));
+    document.querySelectorAll(".rank-group.drag-over").forEach((el) => el.classList.remove("drag-over"));
     dragState = null;
   });
 
@@ -294,6 +324,29 @@ const searchForm = document.getElementById("search-form");
 const searchInput = document.getElementById("search-input");
 const searchStatus = document.getElementById("search-status");
 const searchResults = document.getElementById("search-results");
+
+const rankTargetBanner = document.getElementById("rank-target-banner");
+const rankTargetText = document.getElementById("rank-target-text");
+const rankTargetCancelBtn = document.getElementById("rank-target-cancel");
+
+let pendingRankTarget = null;
+
+function setPendingRankTarget(categoryId, groupIndex) {
+  const category = findCategory(categoryId);
+  if (!category) return;
+  pendingRankTarget = { categoryId, groupIndex };
+  rankTargetText.textContent = `"${category.name}" — ${rankLabel(groupIndex)} sırasına ekleniyor. Ara ve bir görsel seç.`;
+  rankTargetBanner.hidden = false;
+  searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
+  searchInput.focus();
+}
+
+function clearPendingRankTarget() {
+  pendingRankTarget = null;
+  rankTargetBanner.hidden = true;
+}
+
+rankTargetCancelBtn.addEventListener("click", clearPendingRankTarget);
 
 async function fetchSerperImages(term) {
   const response = await fetch("https://google.serper.dev/images", {
@@ -350,16 +403,20 @@ function renderSearchResults(images, term) {
     tag.textContent = item.title || term;
 
     const addToSelectedCategory = () => {
+      const newItem = { id: generateId(), imageUrl: item.imageUrl, term: term };
+
+      if (pendingRankTarget) {
+        addItemToRankGroup(pendingRankTarget.categoryId, pendingRankTarget.groupIndex, newItem);
+        clearPendingRankTarget();
+        return;
+      }
+
       const categoryId = categorySelect.value;
       if (!categoryId) {
         alert("Lütfen önce bir kategori oluşturun ve seçin.");
         return;
       }
-      addItemToCategory(categoryId, {
-        id: generateId(),
-        imageUrl: item.imageUrl,
-        term: term,
-      });
+      addItemToCategory(categoryId, newItem);
     };
 
     card.addEventListener("click", addToSelectedCategory);
@@ -441,8 +498,16 @@ function loginAs(user) {
   localStorage.setItem(CURRENT_USER_KEY, user);
   currentUserLabel.textContent = USER_LABELS[user] + " olarak giriş yaptın";
   finishStatus.textContent = "";
+  resetSearchUI();
   attachDashboardListener(user);
   showScreen("dashboard");
+}
+
+function resetSearchUI() {
+  searchInput.value = "";
+  searchResults.innerHTML = "";
+  searchStatus.textContent = "";
+  clearPendingRankTarget();
 }
 
 function logout() {
@@ -451,6 +516,7 @@ function logout() {
   categoriesRef = null;
   state.categories = [];
   localStorage.removeItem(CURRENT_USER_KEY);
+  resetSearchUI();
   showScreen("login");
 }
 
@@ -535,8 +601,11 @@ function startSlideshowFor(user) {
   userCategoriesRef(user).once("value", (snapshot) => {
     const rawCategories = normalizeCategories(snapshot.val());
     slideshowCategories = rawCategories
-      .map((c) => ({ name: c.name, items: c.items }))
-      .filter((c) => c.items.length > 0);
+      .map((c) => ({
+        name: c.name,
+        slides: c.items.flatMap((group, groupIndex) => group.map((item) => ({ item, rankIndex: groupIndex }))),
+      }))
+      .filter((c) => c.slides.length > 0);
 
     slideshowOwnerTitle.textContent = OWNER_TITLES[user];
 
@@ -560,20 +629,20 @@ function startSlideshowFor(user) {
 
 function renderSlide() {
   const category = slideshowCategories[slideCategoryIndex];
-  const item = category.items[slideItemIndex];
+  const slide = category.slides[slideItemIndex];
   slideshowCategoryTitle.textContent = category.name;
-  slideshowRank.textContent = rankLabel(slideItemIndex);
-  slideshowImage.src = item.imageUrl;
-  slideshowImage.alt = item.term;
-  slideshowName.textContent = item.term;
-  const description = item.description || "";
+  slideshowRank.textContent = rankLabel(slide.rankIndex);
+  slideshowImage.src = slide.item.imageUrl;
+  slideshowImage.alt = slide.item.term;
+  slideshowName.textContent = slide.item.term;
+  const description = slide.item.description || "";
   slideshowDescription.textContent = description;
   slideshowDescription.hidden = !description;
 }
 
 function goToNextSlide() {
   const category = slideshowCategories[slideCategoryIndex];
-  if (slideItemIndex < category.items.length - 1) {
+  if (slideItemIndex < category.slides.length - 1) {
     slideItemIndex++;
   } else if (slideCategoryIndex < slideshowCategories.length - 1) {
     slideCategoryIndex++;
@@ -592,7 +661,7 @@ function goToPrevSlide() {
     slideItemIndex--;
   } else if (slideCategoryIndex > 0) {
     slideCategoryIndex--;
-    slideItemIndex = slideshowCategories[slideCategoryIndex].items.length - 1;
+    slideItemIndex = slideshowCategories[slideCategoryIndex].slides.length - 1;
   } else {
     return;
   }

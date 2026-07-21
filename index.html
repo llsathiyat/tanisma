@@ -40,6 +40,11 @@
     </form>
   </section>
 
+  <div id="rank-target-banner" class="rank-target-banner" hidden>
+    <span id="rank-target-text"></span>
+    <button type="button" id="rank-target-cancel" class="link-btn">İptal</button>
+  </div>
+
   <section class="search-section">
     <form id="search-form" class="search-form">
       <input type="text" id="search-input" placeholder="Ara: gumball, pizza, lamborghini, mavi..." autocomplete="off" required>
@@ -68,11 +73,11 @@
   <button type="button" id="observer-back-btn" class="link-btn">← Geri</button>
   <h2 class="section-title">Kimin favorilerini izlemek istersin?</h2>
   <div class="observer-cards">
-    <button type="button" id="observer-pick-ibo" class="observer-card" disabled>
+    <button type="button" id="observer-pick-ibo" class="observer-card observer-card-ibo" disabled>
       <span class="observer-card-title">İbo'nun Favorileri</span>
       <span class="observer-card-status">Yükleniyor...</span>
     </button>
-    <button type="button" id="observer-pick-zehra" class="observer-card" disabled>
+    <button type="button" id="observer-pick-zehra" class="observer-card observer-card-zehra" disabled>
       <span class="observer-card-title">Zehra'nın Favorileri</span>
       <span class="observer-card-status">Yükleniyor...</span>
     </button>
@@ -112,12 +117,21 @@
   </div>
 </template>
 
-<template id="item-template">
-  <li class="item-row" draggable="true">
-    <div class="item-main">
+<template id="rank-group-template">
+  <li class="rank-group" draggable="true">
+    <div class="rank-group-header">
       <span class="rank-badge"></span>
-      <img class="item-image" src="" alt="">
-      <span class="item-name"></span>
+      <button type="button" class="add-variation-btn">+ Bu sıraya ekle</button>
+    </div>
+    <div class="variation-gallery"></div>
+  </li>
+</template>
+
+<template id="variation-template">
+  <div class="variation-card">
+    <img class="item-image" src="" alt="">
+    <span class="item-name"></span>
+    <div class="variation-actions">
       <button class="edit-note-btn" title="Not ekle/düzenle">✏️</button>
       <button class="remove-item-btn" title="Sil">×</button>
     </div>
@@ -126,7 +140,7 @@
       <textarea class="item-note-textarea" rows="3" placeholder="Bu öğeyle ilgili notunu yaz..."></textarea>
       <button type="button" class="save-note-btn">Kaydet</button>
     </div>
-  </li>
+  </div>
 </template>
 
 <template id="search-card-template">
