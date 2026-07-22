@@ -412,11 +412,15 @@ async function fetchSerperImages(term) {
     throw new Error(message);
   }
   const images = Array.isArray(data.images) ? data.images : [];
-  // lookaside.instagram.com linkleri Google'ın kendi tarama robotuna özel;
-  // gerçek bir tarayıcıya/kullanıcıya asla görsel döndürmüyor (Instagram
-  // giriş sayfasına yönlendiriyor). Baştan eleyip arama sonuçlarında hiç
-  // çıkmamasını sağlıyoruz.
-  return images.filter((image) => !image.imageUrl || !image.imageUrl.includes("lookaside.instagram.com"));
+  // Bazı arama sonuçları platformların kendi iç API/önizleme adreslerine
+  // çıkıyor (Instagram'ın Google botuna özel crawler linki, TikTok'un iç
+  // görsel API'si gibi) — bunlar gerçek bir tarayıcıya/kullanıcıya asla
+  // görsel döndürmüyor (403 veya giriş sayfasına yönlendirme). Baştan
+  // eleyip arama sonuçlarında hiç çıkmamalarını sağlıyoruz.
+  const BROKEN_IMAGE_HOST_PATTERNS = ["lookaside.instagram.com", "tiktok.com/api/img"];
+  return images.filter(
+    (image) => !image.imageUrl || !BROKEN_IMAGE_HOST_PATTERNS.some((pattern) => image.imageUrl.includes(pattern))
+  );
 }
 
 async function searchImages(term) {
