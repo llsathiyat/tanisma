@@ -411,7 +411,12 @@ async function fetchSerperImages(term) {
     const message = data && data.message ? data.message : `İstek başarısız (${response.status})`;
     throw new Error(message);
   }
-  return Array.isArray(data.images) ? data.images : [];
+  const images = Array.isArray(data.images) ? data.images : [];
+  // lookaside.instagram.com linkleri Google'ın kendi tarama robotuna özel;
+  // gerçek bir tarayıcıya/kullanıcıya asla görsel döndürmüyor (Instagram
+  // giriş sayfasına yönlendiriyor). Baştan eleyip arama sonuçlarında hiç
+  // çıkmamasını sağlıyoruz.
+  return images.filter((image) => !image.imageUrl || !image.imageUrl.includes("lookaside.instagram.com"));
 }
 
 async function searchImages(term) {
