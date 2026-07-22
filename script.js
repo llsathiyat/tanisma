@@ -58,14 +58,24 @@ function handleImageError(event) {
 }
 
 // Bazı siteler (ör. Fandom/Wikia) görsellerini başka sitelere gömüldüğünde
-// (hotlink koruması, referer kontrolü) engelliyor. Görseli bir proxy
-// üzerinden göstermek bu engeli aşıyor; orijinal URL Firebase'de değişmeden
-// kalıyor, sadece ekranda gösterirken bu sarmalayıcıyı kullanıyoruz.
+// (hotlink koruması, referer kontrolü) engelliyor; bir proxy üzerinden
+// göstermek bu engeli aşıyor. Ama bazı siteler (ör. bot/veri merkezi IP
+// koruması olan siteler) proxy'yi de engelleyebiliyor. Bu yüzden önce
+// görseli doğrudan deniyoruz (çoğu site için en yüksek kalite budur),
+// başarısız olursa proxy'yi deniyoruz, o da olmazsa placeholder gösteriyoruz.
 function getDisplayableImageUrl(url) {
   // w=600&q=90: gösterilen en büyük kutudan (slayt ~260px) retina ekranlara
   // yetecek payla küçültüp yüksek kalitede getiriyor; proxy'nin varsayılan
   // agresif sıkıştırmasını (bulanık/pikselli görünüm) böylece atlıyoruz.
   return "https://images.weserv.nl/?url=" + encodeURIComponent(url) + "&w=600&q=90";
+}
+
+function loadImageWithFallback(imgEl, originalUrl) {
+  imgEl.onerror = () => {
+    imgEl.onerror = handleImageError;
+    imgEl.src = getDisplayableImageUrl(originalUrl);
+  };
+  imgEl.src = originalUrl;
 }
 
 let currentUser = null;
@@ -271,9 +281,8 @@ function renderCategories() {
           const noteTextarea = itemNode.querySelector(".item-note-textarea");
           const saveNoteBtn = itemNode.querySelector(".save-note-btn");
 
-          image.src = getDisplayableImageUrl(item.imageUrl);
           image.alt = item.term;
-          image.onerror = handleImageError;
+          loadImageWithFallback(image, item.imageUrl);
           name.textContent = item.term;
           removeBtn.addEventListener("click", () => removeItem(category.id, item.id));
 
@@ -688,9 +697,8 @@ function renderSlide() {
   const slide = category.slides[slideItemIndex];
   slideshowCategoryTitle.textContent = category.name;
   slideshowRank.textContent = rankLabel(slide.rankIndex);
-  slideshowImage.src = getDisplayableImageUrl(slide.item.imageUrl);
   slideshowImage.alt = slide.item.term;
-  slideshowImage.onerror = handleImageError;
+  loadImageWithFallback(slideshowImage, slide.item.imageUrl);
   slideshowName.textContent = slide.item.term;
   const description = slide.item.description || "";
   slideshowDescription.textContent = description;
