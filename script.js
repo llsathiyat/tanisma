@@ -57,6 +57,14 @@ function handleImageError(event) {
   img.src = IMAGE_PLACEHOLDER;
 }
 
+// Bazı siteler (ör. Fandom/Wikia) görsellerini başka sitelere gömüldüğünde
+// (hotlink koruması, referer kontrolü) engelliyor. Görseli bir proxy
+// üzerinden göstermek bu engeli aşıyor; orijinal URL Firebase'de değişmeden
+// kalıyor, sadece ekranda gösterirken bu sarmalayıcıyı kullanıyoruz.
+function getDisplayableImageUrl(url) {
+  return "https://images.weserv.nl/?url=" + encodeURIComponent(url);
+}
+
 let currentUser = null;
 let categoriesRef = null;
 // Firebase'den ilk gerçek veri gelmeden saveData() çalışmasın diye —
@@ -260,7 +268,7 @@ function renderCategories() {
           const noteTextarea = itemNode.querySelector(".item-note-textarea");
           const saveNoteBtn = itemNode.querySelector(".save-note-btn");
 
-          image.src = item.imageUrl;
+          image.src = getDisplayableImageUrl(item.imageUrl);
           image.alt = item.term;
           image.onerror = handleImageError;
           name.textContent = item.term;
@@ -677,7 +685,7 @@ function renderSlide() {
   const slide = category.slides[slideItemIndex];
   slideshowCategoryTitle.textContent = category.name;
   slideshowRank.textContent = rankLabel(slide.rankIndex);
-  slideshowImage.src = slide.item.imageUrl;
+  slideshowImage.src = getDisplayableImageUrl(slide.item.imageUrl);
   slideshowImage.alt = slide.item.term;
   slideshowImage.onerror = handleImageError;
   slideshowName.textContent = slide.item.term;
