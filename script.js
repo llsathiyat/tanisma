@@ -62,7 +62,10 @@ function handleImageError(event) {
 // üzerinden göstermek bu engeli aşıyor; orijinal URL Firebase'de değişmeden
 // kalıyor, sadece ekranda gösterirken bu sarmalayıcıyı kullanıyoruz.
 function getDisplayableImageUrl(url) {
-  return "https://images.weserv.nl/?url=" + encodeURIComponent(url);
+  // w=600&q=90: gösterilen en büyük kutudan (slayt ~260px) retina ekranlara
+  // yetecek payla küçültüp yüksek kalitede getiriyor; proxy'nin varsayılan
+  // agresif sıkıştırmasını (bulanık/pikselli görünüm) böylece atlıyoruz.
+  return "https://images.weserv.nl/?url=" + encodeURIComponent(url) + "&w=600&q=90";
 }
 
 let currentUser = null;
