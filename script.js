@@ -43,7 +43,11 @@ const state = {
 
 const IMAGE_PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
   <rect width="100" height="100" rx="12" fill="#e2e8f0"/>
-  <text x="50%" y="54%" font-size="38" text-anchor="middle" dominant-baseline="middle">🖼️</text>
+  <g fill="none" stroke="#94a3b8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="22" y="28" width="56" height="44" rx="4"/>
+    <circle cx="36" cy="42" r="5" fill="#94a3b8" stroke="none"/>
+    <path d="M22 62 L40 48 L54 60 L64 50 L78 62" />
+  </g>
 </svg>`;
 const IMAGE_PLACEHOLDER = "data:image/svg+xml," + encodeURIComponent(IMAGE_PLACEHOLDER_SVG);
 
