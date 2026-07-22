@@ -323,13 +323,13 @@ body {
   border: 1px solid #dce6f0;
   border-radius: 12px;
   padding: 10px;
-  min-width: 110px;
+  min-width: 130px;
   cursor: default;
 }
 
 .item-image {
-  width: 56px;
-  height: 56px;
+  width: 84px;
+  height: 84px;
   object-fit: cover;
   border-radius: 8px;
   flex-shrink: 0;
@@ -768,7 +768,7 @@ body {
   }
 
   .variation-card {
-    min-width: 90px;
+    min-width: 110px;
   }
 
   .observer-cards {
