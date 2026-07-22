@@ -71,6 +71,12 @@ function getDisplayableImageUrl(url) {
 }
 
 function loadImageWithFallback(imgEl, originalUrl) {
+  // no-referrer: tarayıcının "bu görsel https://.../tanisma/ sayfasına
+  // gömülü" bilgisini (Referer header) kaynağa hiç göndermemesini sağlar.
+  // Bazı siteler (ör. Fandom/Wikia) tam da bu bilgiye bakarak başka
+  // sitelere gömülü görselleri engelliyor; bu ayar o engeli en kökünden
+  // kaldırıyor, proxy'ye gerek kalmadan.
+  imgEl.referrerPolicy = "no-referrer";
   imgEl.onerror = () => {
     imgEl.onerror = handleImageError;
     imgEl.src = getDisplayableImageUrl(originalUrl);
